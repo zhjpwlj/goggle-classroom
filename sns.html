@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>Goggle SNS</title>
+  <style>
+    body { font-family: sans-serif; margin: 0; }
+    #sidebar { width: 200px; height: 100vh; background: #f0f0f0; float: left; padding: 20px; }
+    #main { margin-left: 220px; padding: 20px; }
+    #version-detail { display: none; }
+    #admin-password-box { display: none; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div id="sidebar">
+    <h3 id="gc-icon" style="cursor: pointer;">🧱 Goggle Classroom</h3>
+    <div id="version-detail">
+      バージョン: <span id="vnum" style="color: gray; cursor: pointer;">12.3.7</span>
+    </div>
+    <div id="admin-password-box">
+      <input type="password" id="admin-pass" placeholder="管理者パスワード">
+      <button onclick="enterAdmin()">OK</button>
+    </div>
+    <hr>
+    <button onclick="window.open('https://classroom.google.com')">📎 先生キー</button>
+  </div>
+
+  <div id="main">
+    <h2>ようこそ Goggle SNS へ</h2>
+    <p>ここで自由にコースを作成したり、コメントを残したりできます。</p>
+  </div>
+
+  <script>
+    let clickGC = 0;
+    document.getElementById("gc-icon").addEventListener("click", () => {
+      clickGC++;
+      if (clickGC === 2) {
+        document.getElementById("version-detail").style.display = "block";
+      }
+    });
+
+    document.getElementById("vnum").addEventListener("click", () => {
+      document.getElementById("admin-password-box").style.display = "block";
+    });
+
+    function enterAdmin() {
+      if (document.getElementById("admin-pass").value === "Wlj20120917") {
+        window.location.href = "admin.html";
+      } else {
+        alert("パスワードエラー");
+      }
+    }
+  </script>
+</body>
+</html>
