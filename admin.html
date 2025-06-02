@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <title>超级权限后台 - Goggle SNS 管理中心</title>
+  <style>
+    body { font-family: "Microsoft YaHei", sans-serif; margin: 40px; background: #f9f9f9; }
+    h1 { color: #333; }
+    .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 0 5px #ccc; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #eee; }
+  </style>
+</head>
+<body>
+  <h1>🔧 Goggle SNS 超级权限后台</h1>
+
+  <div class="section">
+    <h2>📚 所有课程</h2>
+    <table>
+      <tr><th>ID</th><th>课程名</th><th>创建者</th><th>状态</th></tr>
+      <tr><td>001</td><td>Python 入门</td><td>yir1000</td><td>公开</td></tr>
+      <tr><td>002</td><td>黑客代理制作</td><td>yu1000</td><td>密码保护</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>👤 用户列表</h2>
+    <table>
+      <tr><th>用户名</th><th>邮箱</th><th>角色</th><th>状态</th></tr>
+      <tr><td>yir1000</td><td>yir1000@goggle.com</td><td>课程管理员</td><td>活跃</td></tr>
+      <tr><td>guest</td><td>guest@proxy.me</td><td>学生</td><td>活跃</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>💬 留言监控</h2>
+    <table>
+      <tr><th>留言者</th><th>时间</th><th>内容</th></tr>
+      <tr><td>yu1000</td><td>2025-06-02 14:12</td><td>这个proxy太酷了！</td></tr>
+      <tr><td>匿名</td><td>2025-06-02 15:33</td><td>请问哪里可以下载源代码？</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>⚙️ 系统操作</h2>
+    <button onclick="alert('备份成功')">🔄 备份数据</button>
+    <button onclick="alert('模拟清除完成')">🗑️ 清除留言</button>
+    <button onclick="alert('正在导出…')">📤 导出用户列表</button>
+  </div>
+</body>
+</html>
