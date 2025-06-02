@@ -1,45 +1,24 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>スーパーウルトラリアル Goggle Classroom</title>
+  <meta charset="UTF-8" />
+  <title>Goggle Classroom</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 100px; }
-    #version { color: gray; cursor: pointer; }
-    #password-box { display: none; margin-top: 20px; }
+    body { font-family: Arial, sans-serif; background:#f0f0f0; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; margin:0; }
+    #version { margin-top:20px; color:#555; cursor:pointer; }
   </style>
 </head>
 <body>
-  <h1>Goggle Classroom</h1>
-  <p id="version">バージョン 12.3.7</p>
-
-  <div id="password-box">
-    <input type="password" id="input" placeholder="パスワード">
-    <button onclick="checkPassword()">OK</button>
-  </div>
+  <p id="version">バージョン 1.0.0</p>
 
   <script>
-    let clickCount = 0;
-    document.getElementById("version").addEventListener("click", () => {
-      clickCount++;
-      if (clickCount >= 1) {
-        document.getElementById("password-box").style.display = "block";
-      }
-    });
-
-    function checkPassword() {
-      const input = document.getElementById("input").value;
-      if (input === "1357") {
-        document.cookie = "visited=true; path=/";
-        window.location.href = "login.html";
+    document.getElementById('version').onclick = () => {
+      const pwd = prompt('パスワードを入力してください:');
+      if (pwd === '1357') {
+        window.location.href = 'login.html'; // 跳转到登录页
       } else {
-        alert("パスワードが間違っています");
+        alert('パスワードが違います。');
       }
-    }
-
-    // 若已访问过，直接跳转
-    if (document.cookie.includes("visited=true")) {
-      window.location.href = "login.html";
     }
   </script>
 </body>
