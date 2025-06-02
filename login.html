@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ログイン - Goggle</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin-top: 100px; }
+    input { margin: 10px; padding: 8px; width: 200px; }
+  </style>
+</head>
+<body>
+  <h2>Goggle にログイン</h2>
+  <input type="text" id="email" placeholder="メールアドレスを入力">
+  <br>
+  <input type="password" id="pwd" placeholder="パスワードを入力">
+  <br>
+  <button onclick="login()">ログイン</button>
+
+  <script>
+    function login() {
+      // 简单跳转处理
+      window.location.href = "sns.html";
+    }
+  </script>
+</body>
+</html>
