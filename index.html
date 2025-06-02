@@ -1,42 +1,56 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Goggle Classroom</title>
   <style>
     body {
-      font-family: 'メイリオ', Meiryo, 'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', Arial, sans-serif;
-      background: #f0f0f0;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
+      font-family: sans-serif;
+      text-align: center;
+      margin-top: 100px;
     }
     #version {
-      margin-top: 20px;
-      color: #555;
+      color: gray;
       cursor: pointer;
-      user-select: none;
+    }
+    #password-box {
+      display: none;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <h1> Goggle Classroom</h1>
-  <p id="version">バージョン 1.0.0</p>
+  <h1>Goggle Classroom</h1>
+  <p id="version">バージョン 12.3.7</p>
+
+  <div id="password-box">
+    <input type="password" id="input" placeholder="パスワードを入力">
+    <button onclick="checkPassword()">OK</button>
+  </div>
 
   <script>
-    // バージョン番号クリック時にパスワード入力を促す
-    document.getElementById('version').onclick = () => {
-      const password = prompt('パスワードを入力してください:');
-      if (password === '1357') {
-        // 正しいパスワードならログインページへ移動
-        window.location.href = 'login.html';
-      } else {
-        alert('パスワードが間違っています。もう一度試してください。');
+    let clickCount = 0;
+    document.getElementById("version").addEventListener("click", () => {
+      clickCount++;
+      if (clickCount >= 1) {
+        document.getElementById("password-box").style.display = "block";
       }
-    };
+    });
+
+    function checkPassword() {
+      const input = document.getElementById("input").value;
+      if (input === "1357") {
+        document.cookie = "visited=true; path=/";
+        window.location.href = "login.html";
+      } else {
+        alert("パスワードが間違っています");
+      }
+    }
+
+    // すでに訪問済みなら直接ログインページへ遷移
+    if (document.cookie.includes("visited=true")) {
+      window.location.href = "login.html";
+    }
   </script>
 </body>
 </html>
