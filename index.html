@@ -4,22 +4,39 @@
   <meta charset="UTF-8" />
   <title>Goggle Classroom</title>
   <style>
-    body { font-family: Arial, sans-serif; background:#f0f0f0; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh; margin:0; }
-    #version { margin-top:20px; color:#555; cursor:pointer; }
+    body {
+      font-family: 'メイリオ', Meiryo, 'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', Arial, sans-serif;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    #version {
+      margin-top: 20px;
+      color: #555;
+      cursor: pointer;
+      user-select: none;
+    }
   </style>
 </head>
 <body>
+  <h1> Goggle Classroom</h1>
   <p id="version">バージョン 1.0.0</p>
 
   <script>
+    // バージョン番号クリック時にパスワード入力を促す
     document.getElementById('version').onclick = () => {
-      const pwd = prompt('パスワードを入力してください:');
-      if (pwd === '1357') {
-        window.location.href = 'login.html'; // 跳转到登录页
+      const password = prompt('パスワードを入力してください:');
+      if (password === '1357') {
+        // 正しいパスワードならログインページへ移動
+        window.location.href = 'login.html';
       } else {
-        alert('パスワードが違います。');
+        alert('パスワードが間違っています。もう一度試してください。');
       }
-    }
+    };
   </script>
 </body>
 </html>
