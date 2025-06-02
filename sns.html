@@ -4,52 +4,273 @@
   <meta charset="UTF-8">
   <title>Goggle SNS</title>
   <style>
-    body { font-family: sans-serif; margin: 0; }
-    #sidebar { width: 200px; height: 100vh; background: #f0f0f0; float: left; padding: 20px; }
-    #main { margin-left: 220px; padding: 20px; }
-    #version-detail { display: none; }
-    #admin-password-box { display: none; margin-top: 10px; }
+    body { font-family: sans-serif; margin: 0; display: flex; height: 100vh; }
+    #sidebar {
+      width: 200px;
+      background: #f0f0f0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+    #main {
+      flex: 1;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+    h2 { margin-top: 0; }
+    .course-item { padding: 10px; border: 1px solid #ccc; margin: 5px 0; cursor: pointer; border-radius: 4px; }
+    .course-item:hover { background: #eef; }
+    #version-detail, #admin-password-box { display: none; }
+    #message-list { max-height: 300px; overflow-y: auto; border: 1px solid #ccc; padding: 10px; }
+    .message-item { border-bottom: 1px dashed #aaa; padding: 5px 0; }
+    #create-course-form, #message-form { margin: 10px 0; }
+    input, textarea { width: 100%; box-sizing: border-box; margin: 5px 0; padding: 8px; }
+    button { padding: 8px 16px; margin-top: 5px; cursor: pointer; }
+    #course-password-modal {
+      display: none;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      justify-content: center; align-items: center;
+    }
+    #course-password-box {
+      background: white; padding: 20px; border-radius: 6px; width: 300px;
+    }
   </style>
 </head>
 <body>
+  <!-- 侧边栏 -->
   <div id="sidebar">
     <h3 id="gc-icon" style="cursor: pointer;">🧱 Goggle Classroom</h3>
     <div id="version-detail">
       バージョン: <span id="vnum" style="color: gray; cursor: pointer;">12.3.7</span>
     </div>
     <div id="admin-password-box">
-      <input type="password" id="admin-pass" placeholder="管理者パスワード">
-      <button onclick="enterAdmin()">OK</button>
+      <input type="password" id="admin-pass" placeholder="管理员密码">
+      <button onclick="enterAdmin()">进入后台</button>
     </div>
     <hr>
-    <button onclick="window.open('https://classroom.google.com')">📎 先生キー</button>
+    <button onclick="openTeacherLink()">📎 先生キー</button>
   </div>
 
+  <!-- 主区 -->
   <div id="main">
-    <h2>ようこそ Goggle SNS へ</h2>
-    <p>ここで自由にコースを作成したり、コメントを残したりできます。</p>
+    <h2>欢迎，<span id="user-display"></span>！</h2>
+    <h3>所有课程：</h3>
+    <div id="course-list"></div>
+
+    <h3>创建新课程：</h3>
+    <div id="create-course-form">
+      <input type="text" id="new-course-name" placeholder="课程名称">
+      <input type="text" id="new-course-password" placeholder="课程密码（选填）">
+      <button onclick="createCourse()">创建课程</button>
+      <p id="create-course-error" style="color:red;"></p>
+    </div>
+
+    <!-- 留言区：初始隐藏，点击课程后才显示 -->
+    <div id="message-section" style="display:none;">
+      <h3>课程：<span id="current-course-name"></span></h3>
+      <div id="message-list"></div>
+      <div id="message-form">
+        <textarea id="new-message-content" rows="3" placeholder="输入留言内容"></textarea>
+        <button onclick="postMessage()">发送留言</button>
+        <p id="post-message-error" style="color:red;"></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 课程密码输入弹窗 -->
+  <div id="course-password-modal">
+    <div id="course-password-box">
+      <p>此课程需要密码，请输入：</p>
+      <input type="password" id="course-password-input" placeholder="课程密码">
+      <button onclick="verifyCoursePassword()">确认</button>
+      <button onclick="closeCourseModal()">取消</button>
+      <p id="course-password-error" style="color:red;"></p>
+    </div>
   </div>
 
   <script>
-    let clickGC = 0;
-    document.getElementById("gc-icon").addEventListener("click", () => {
-      clickGC++;
-      if (clickGC === 2) {
-        document.getElementById("version-detail").style.display = "block";
+    // ========== 全局变量 ==========
+    const WEB_APP_URL = 'YOUR_WEB_APP_URL'; // 替换成真实的 Apps Script Web App URL
+    let currentCourse = null;      // 当前选中的课程对象 { courseId, courseName, owner, hasPassword }
+    let allCourses = [];           // 缓存拉取到的课程列表
+    const username = localStorage.getItem('username');
+    const isAdmin = localStorage.getItem('isAdmin') === 'true';
+
+    // 页面加载时执行
+    window.onload = function() {
+      if (!username) {
+        // 如果没登录，直接回到 login.html
+        window.location.href = 'login.html';
+        return;
+      }
+      document.getElementById('user-display').innerText = username;
+      loadCourses();
+    };
+
+    // ========== 课程列表 & 创建 ==========
+    function loadCourses() {
+      fetch(`${WEB_APP_URL}?path=getCourses`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            allCourses = data.courses;
+            renderCourseList();
+          } else {
+            alert('拉取课程失败：' + data.error);
+          }
+        })
+        .catch(err => console.error(err));
+    }
+
+    function renderCourseList() {
+      const container = document.getElementById('course-list');
+      container.innerHTML = '';
+      allCourses.forEach(course => {
+        const div = document.createElement('div');
+        div.className = 'course-item';
+        div.innerText = `${course.courseName}   （创建者：${course.owner}${course.hasPassword ? ' 🔒' : ''}）`;
+        div.onclick = () => onSelectCourse(course);
+        container.appendChild(div);
+      });
+    }
+
+    function createCourse() {
+      const name = document.getElementById('new-course-name').value.trim();
+      const pwd = document.getElementById('new-course-password').value.trim();
+      if (!name) {
+        document.getElementById('create-course-error').innerText = '课程名称不能为空';
+        return;
+      }
+      document.getElementById('create-course-error').innerText = '';
+      const url = `${WEB_APP_URL}?path=createCourse&courseName=${encodeURIComponent(name)}&owner=${encodeURIComponent(username)}&password=${encodeURIComponent(pwd)}`;
+      fetch(url).then(res => res.json()).then(data => {
+        if (data.success) {
+          // 刷新课程列表
+          loadCourses();
+          document.getElementById('new-course-name').value = '';
+          document.getElementById('new-course-password').value = '';
+        } else {
+          document.getElementById('create-course-error').innerText = data.error;
+        }
+      }).catch(err => console.error(err));
+    }
+
+    // ========== 选中并打开课程 ==========
+    function onSelectCourse(course) {
+      currentCourse = course;
+      if (course.hasPassword) {
+        // 弹出输入密码弹窗
+        document.getElementById('course-password-modal').style.display = 'flex';
+        document.getElementById('course-password-input').value = '';
+        document.getElementById('course-password-error').innerText = '';
+      } else {
+        openCourseAfterVerify();
+      }
+    }
+
+    function verifyCoursePassword() {
+      const inputPwd = document.getElementById('course-password-input').value.trim();
+      if (inputPwd === currentCourse.password) {
+        closeCourseModal();
+        openCourseAfterVerify();
+      } else {
+        document.getElementById('course-password-error').innerText = '密码错误';
+      }
+    }
+
+    function closeCourseModal() {
+      document.getElementById('course-password-modal').style.display = 'none';
+    }
+
+    function openCourseAfterVerify() {
+      document.getElementById('current-course-name').innerText = currentCourse.courseName;
+      document.getElementById('message-section').style.display = 'block';
+      loadMessages();
+    }
+
+    // ========== 留言功能 ==========
+    function loadMessages() {
+      const url = `${WEB_APP_URL}?path=getMessages&courseId=${encodeURIComponent(currentCourse.courseId)}`;
+      fetch(url).then(res => res.json()).then(data => {
+        if (data.success) {
+          renderMessages(data.messages);
+        } else {
+          alert('拉取留言失败：' + data.error);
+        }
+      }).catch(err => console.error(err));
+    }
+
+    function renderMessages(messages) {
+      const container = document.getElementById('message-list');
+      container.innerHTML = '';
+      messages.forEach(msg => {
+        const div = document.createElement('div');
+        div.className = 'message-item';
+        div.innerHTML = `<strong>${msg.author}</strong> <em>${msg.timestamp}</em><br>${msg.content}`;
+        container.appendChild(div);
+      });
+      // 滚动到底部
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function postMessage() {
+      const content = document.getElementById('new-message-content').value.trim();
+      if (!content) {
+        document.getElementById('post-message-error').innerText = '留言内容不能为空';
+        return;
+      }
+      document.getElementById('post-message-error').innerText = '';
+      const url = `${WEB_APP_URL}?path=postMessage&courseId=${encodeURIComponent(currentCourse.courseId)}&author=${encodeURIComponent(username)}&content=${encodeURIComponent(content)}`;
+      fetch(url).then(res => res.json()).then(data => {
+        if (data.success) {
+          document.getElementById('new-message-content').value = '';
+          loadMessages(); // 重新拉取留言
+        } else {
+          document.getElementById('post-message-error').innerText = data.error;
+        }
+      }).catch(err => console.error(err));
+    }
+
+    // ========== 老师键 & 管理员入口 ==========
+    function openTeacherLink() {
+      // 这里可以自定义跳转链接，比如真正的 Google Classroom
+      window.open('https://classroom.google.com', '_blank');
+    }
+
+    // 双击 Goggle Classroom 图标出现版本详情
+    let gcClickCount = 0;
+    document.getElementById('gc-icon').addEventListener('click', () => {
+      gcClickCount++;
+      if (gcClickCount === 2) {
+        document.getElementById('version-detail').style.display = 'block';
       }
     });
 
-    document.getElementById("vnum").addEventListener("click", () => {
-      document.getElementById("admin-password-box").style.display = "block";
+    // 点击版本号出现管理员密码输入
+    document.getElementById('vnum').addEventListener('click', () => {
+      document.getElementById('admin-password-box').style.display = 'block';
     });
 
     function enterAdmin() {
-      if (document.getElementById("admin-pass").value === "Wlj20120917") {
-        window.location.href = "admin.html";
-      } else {
-        alert("パスワードエラー");
+      const pwd = document.getElementById('admin-pass').value.trim();
+      if (!isAdmin) {
+        alert('你不是管理员，无法进入后台');
+        return;
       }
+      // 调用 admin_getAllData 只是为了验证管理员账号密码是否正确
+      const url = `${WEB_APP_URL}?path=admin_getAllData&username=${encodeURIComponent(username)}&password=${encodeURIComponent(pwd)}`;
+      fetch(url).then(res => res.json()).then(data => {
+        if (data.success) {
+          // 验证通过，跳转到 admin.html
+          window.location.href = 'admin.html';
+        } else {
+          alert('管理员验证失败：' + data.error);
+        }
+      }).catch(err => console.error(err));
     }
+
   </script>
 </body>
 </html>
