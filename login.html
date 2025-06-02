@@ -1,53 +1,116 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <title>ログイン - Goggle</title>
+  <meta charset="UTF-8" />
+  <title>ログイン - Goggle Classroom</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin-top: 100px; }
-    input { margin: 10px; padding: 8px; width: 200px; }
-    #error { color: red; }
+    body {
+      font-family: 'メイリオ', Meiryo, 'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', Arial, sans-serif;
+      background: #eef2f3;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    form {
+      background: #ffffff;
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 320px;
+      box-sizing: border-box;
+    }
+    h2 {
+      margin-top: 0;
+      text-align: center;
+      color: #333333;
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+      color: #555555;
+    }
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 8px 10px;
+      margin-top: 5px;
+      border: 1px solid #cccccc;
+      border-radius: 5px;
+      box-sizing: border-box;
+      font-size: 14px;
+    }
+    button {
+      margin-top: 25px;
+      width: 100%;
+      padding: 10px 0;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #125ea9;
+    }
+    .error-message {
+      color: red;
+      margin-top: 10px;
+      font-size: 13px;
+      display: none;
+      text-align: center;
+    }
   </style>
 </head>
 <body>
-  <h2>Goggle にログイン</h2>
-  <input type="text" id="email" placeholder="ユーザー名">
-  <br>
-  <input type="password" id="pwd" placeholder="パスワード">
-  <br>
-  <button onclick="login()">ログイン</button>
-  <p id="error"></p>
+  <form id="loginForm">
+    <h2>ログイン</h2>
+
+    <label for="username">ユーザー名</label>
+    <input type="text" id="username" name="username" autocomplete="username" required />
+
+    <label for="password">パスワード</label>
+    <input type="password" id="password" name="password" autocomplete="current-password" required />
+
+    <button type="submit">ログイン</button>
+    <div class="error-message" id="errorMessage"></div>
+  </form>
 
   <script>
-    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbz6bmoX3HotUKMIdVk7r8vWI7GQibEEifUsyAKB_dgNgZpyop3kNRyX3JJhZC-4DyXDmg/exec'; // 请替换成实际的 Web App URL
+    const form = document.getElementById('loginForm');
+    const errorMessage = document.getElementById('errorMessage');
 
-    function login() {
-      const username = document.getElementById("email").value.trim();
-      const password = document.getElementById("pwd").value.trim();
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const username = form.username.value.trim();
+      const password = form.password.value.trim();
+
       if (!username || !password) {
-        document.getElementById("error").innerText = "用户名/密码不能为空";
+        errorMessage.textContent = 'ユーザー名とパスワードを入力してください。';
+        errorMessage.style.display = 'block';
         return;
       }
 
-      // 调用 login 接口
-      fetch(`${WEB_APP_URL}?path=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`)
-        .then(res => res.json())
-        .then(data => {
-          if (data.success) {
-            // 登录成功，保存到 localStorage
-            localStorage.setItem('username', username);
-            localStorage.setItem('isAdmin', data.isAdmin);
-            // 跳转主页面
-            window.location.href = "sns.html";
-          } else {
-            document.getElementById("error").innerText = data.error;
-          }
-        })
-        .catch(err => {
-          document.getElementById("error").innerText = "网络错误，请重试";
-          console.error(err);
-        });
-    }
+      errorMessage.style.display = 'none';
+
+      // 本来ここでAPIに送信して認証するが、ここはモックでシンプルに処理
+      // admin/123456で管理者ログイン成功、それ以外は一般ユーザーログイン成功と仮定
+
+      if (username === 'admin' && password === '123456') {
+        alert('管理者としてログインしました！');
+        // 管理者用メインページへ
+        window.location.href = 'main.html?user=admin&role=admin';
+      } else {
+        // 一般ユーザーとしてログイン成功
+        alert(`${username} さん、ログイン成功しました！`);
+        window.location.href = `main.html?user=${encodeURIComponent(username)}&role=user`;
+      }
+    });
   </script>
 </body>
 </html>
