@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <title>超级权限后台 - Goggle SNS 管理中心</title>
   <style>
-    body { font-family: "Microsoft YaHei", sans-serif; margin: 40px; background: #f9f9f9; }
+    body { font-family: "Microsoft YaHei", sans-serif; margin: 20px; background: #f9f9f9; }
     h1 { color: #333; }
     .section { background: white; padding: 20px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 0 5px #ccc; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; }
@@ -14,39 +14,85 @@
 </head>
 <body>
   <h1>🔧 Goggle SNS 超级权限后台</h1>
-
-  <div class="section">
-    <h2>📚 所有课程</h2>
-    <table>
-      <tr><th>ID</th><th>课程名</th><th>创建者</th><th>状态</th></tr>
-      <tr><td>001</td><td>Python 入门</td><td>yir1000</td><td>公开</td></tr>
-      <tr><td>002</td><td>黑客代理制作</td><td>yu1000</td><td>密码保护</td></tr>
-    </table>
+  <div id="container">
+    <p>正在加载数据……</p>
   </div>
 
-  <div class="section">
-    <h2>👤 用户列表</h2>
-    <table>
-      <tr><th>用户名</th><th>邮箱</th><th>角色</th><th>状态</th></tr>
-      <tr><td>yir1000</td><td>yir1000@goggle.com</td><td>课程管理员</td><td>活跃</td></tr>
-      <tr><td>guest</td><td>guest@proxy.me</td><td>学生</td><td>活跃</td></tr>
-    </table>
-  </div>
+  <script>
+    const WEB_APP_URL = 'YOUR_WEB_APP_URL'; // 替换成实际的 Web App URL
+    const username = localStorage.getItem('username');
+    let adminPwd = ''; // 稍后会动态从 prompt 获取
 
-  <div class="section">
-    <h2>💬 留言监控</h2>
-    <table>
-      <tr><th>留言者</th><th>时间</th><th>内容</th></tr>
-      <tr><td>yu1000</td><td>2025-06-02 14:12</td><td>这个proxy太酷了！</td></tr>
-      <tr><td>匿名</td><td>2025-06-02 15:33</td><td>请问哪里可以下载源代码？</td></tr>
-    </table>
-  </div>
+    window.onload = function() {
+      // 二次确认管理员密码：可以让用户重新输入一次
+      adminPwd = prompt("请输入管理员密码以查看后台：");
+      if (!adminPwd) {
+        alert('需要管理员密码才能查看');
+        window.location.href = 'sns.html';
+        return;
+      }
+      loadAllData();
+    };
 
-  <div class="section">
-    <h2>⚙️ 系统操作</h2>
-    <button onclick="alert('备份成功')">🔄 备份数据</button>
-    <button onclick="alert('模拟清除完成')">🗑️ 清除留言</button>
-    <button onclick="alert('正在导出…')">📤 导出用户列表</button>
-  </div>
+    function loadAllData() {
+      const url = `${WEB_APP_URL}?path=admin_getAllData&username=${encodeURIComponent(username)}&password=${encodeURIComponent(adminPwd)}`;
+      fetch(url).then(res => res.json()).then(data => {
+        if (data.success) {
+          renderAdminPage(data.users, data.courses, data.messages);
+        } else {
+          alert('管理员验证失败：' + data.error);
+          window.location.href = 'sns.html';
+        }
+      }).catch(err => {
+        console.error(err);
+        alert('网络错误');
+        window.location.href = 'sns.html';
+      });
+    }
+
+    function renderAdminPage(users, courses, messages) {
+      const container = document.getElementById('container');
+      container.innerHTML = '';
+
+      // 1. 用户列表
+      const userSection = document.createElement('div');
+      userSection.className = 'section';
+      userSection.innerHTML = '<h2>👤 用户列表</h2>';
+      const userTable = document.createElement('table');
+      let userHTML = '<tr><th>用户名</th><th>密码</th><th>是否管理员</th></tr>';
+      users.forEach(u => {
+        userHTML += `<tr><td>${u.username}</td><td>${u.password}</td><td>${u.isAdmin}</td></tr>`;
+      });
+      userTable.innerHTML = userHTML;
+      userSection.appendChild(userTable);
+      container.appendChild(userSection);
+
+      // 2. 课程列表
+      const courseSection = document.createElement('div');
+      courseSection.className = 'section';
+      courseSection.innerHTML = '<h2>📚 课程列表</h2>';
+      const courseTable = document.createElement('table');
+      let courseHTML = '<tr><th>课程 ID</th><th>课程名</th><th>创建者</th><th>密码</th></tr>';
+      courses.forEach(c => {
+        courseHTML += `<tr><td>${c.courseId}</td><td>${c.courseName}</td><td>${c.owner}</td><td>${c.password}</td></tr>`;
+      });
+      courseTable.innerHTML = courseHTML;
+      courseSection.appendChild(courseTable);
+      container.appendChild(courseSection);
+
+      // 3. 留言列表
+      const msgSection = document.createElement('div');
+      msgSection.className = 'section';
+      msgSection.innerHTML = '<h2>💬 留言列表</h2>';
+      const msgTable = document.createElement('table');
+      let msgHTML = '<tr><th>留言 ID</th><th>课程 ID</th><th>作者</th><th>内容</th><th>时间</th></tr>';
+      messages.forEach(m => {
+        msgHTML += `<tr><td>${m.messageId}</td><td>${m.courseId}</td><td>${m.author}</td><td>${m.content}</td><td>${m.timestamp}</td></tr>`;
+      });
+      msgTable.innerHTML = msgHTML;
+      msgSection.appendChild(msgTable);
+      container.appendChild(msgSection);
+    }
+  </script>
 </body>
 </html>
