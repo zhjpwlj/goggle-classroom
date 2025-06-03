@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>統合学習支援ポータル</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden; /* スクロール制限 */
+            background-color: #001F3F; /* 濃い紺色 */
+            color: white;
+        }
+        .login-container {
+            background: #003366; /* 深い紺色 */
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(255, 255, 255, 0.1);
+            text-align: center;
+            width: 380px;
+            display: flex;
+            align-items: center;
+        }
+        .logo {
+            width: 60px;
+            margin-right: 15px;
+        }
+        h2 {
+            margin-bottom: 20px;
+            color: #ffffff;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 15px 0;
+            border: 1px solid #004080;
+            border-radius: 6px;
+            background: #002b5e;
+            color: white;
+            text-align: center;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #007bff;
+            color: white;
+            font-size: 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        #message {
+            margin-top: 12px;
+            font-size: 14px;
+            color: #ff4d4d;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/1/19/Google_Classroom_Logo.svg" alt="Google Classroom ロゴ" class="logo">
+        <div>
+            <h2>統合学習支援ポータル</h2>
+            <input type="text" id="authCode" placeholder="認証コード" maxlength="20">
+            <button onclick="verifyCode()">サインイン</button>
+            <p id="message"></p>
+        </div>
+    </div>
+
+    <script>
+        function verifyCode() {
+            const authCode = document.getElementById("authCode").value;
+
+            if (authCode === "zhjpwlj") {
+                window.location.href = "https://zhjpwlj.github.io/goggle-classroom/sns.html";
+            } else {
+                document.getElementById("message").innerText = "認証コードを確認してください。";
+            }
+        }
+    </script>
+</body>
+</html>
