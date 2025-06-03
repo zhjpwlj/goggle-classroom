@@ -1,56 +1,115 @@
+// 文件：main.html
+// ✅ Goggle SNS 主平台
 <!DOCTYPE html>
 <html lang="ja">
-<head><title>SNS 教室</title></head>
-<body>
-  <h2>ようこそ, <span id="user"></span></h2>
-  <div>
-    <input id="courseName" placeholder="新しいコース">
-    <input id="coursePass" placeholder="パスワード">
-    <button onclick="addCourse()">作成</button>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Goggle Classroom</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <!-- 顶部导航栏 -->
+  <nav class="bg-white shadow px-4 py-2 flex justify-between items-center">
+    <div class="flex items-center">
+      <img src="https://ssl.gstatic.com/classroom/favicon.png" class="h-8 mr-2 cursor-pointer" id="logo" />
+      <span class="text-lg font-semibold">Goggle Classroom</span>
+    </div>
+    <div>
+      <span id="userEmail" class="mr-4 text-sm text-gray-600"></span>
+      <button id="logoutBtn" class="bg-red-500 text-white px-3 py-1 rounded">ログアウト</button>
+    </div>
+  </nav>
+
+  <!-- 主内容区域 -->
+  <div class="p-4 max-w-4xl mx-auto">
+    <h1 class="text-xl font-bold mb-4">コース一覧</h1>
+
+    <!-- 创建课程 -->
+    <div class="mb-4">
+      <input id="courseName" type="text" placeholder="新しいコース名" class="border px-2 py-1 mr-2" />
+      <input id="coursePassword" type="text" placeholder="パスワード（省略可）" class="border px-2 py-1 mr-2" />
+      <button id="createCourseBtn" class="bg-blue-500 text-white px-3 py-1 rounded">作成</button>
+    </div>
+
+    <!-- 课程列表 -->
+    <ul id="courseList" class="space-y-4"></ul>
   </div>
-  <ul id="courseList"></ul>
-  <hr>
-  <div id="forum"></div>
-  <button id="teacherKey" onclick="location.href='https://classroom.google.com'" style="display:none;">先生キー</button>
+
   <script>
-    const base = 'https://script.google.com/macros/s/AKfycbzOWtwafo0JpD8ysxJtdrwlvCrSBTuY86_3o8MMfLb-uNy5DCas8Tst3CxK1iFiVf3I/exec';
-    document.getElementById('user').innerText = localStorage.getItem('name');
-    if (localStorage.getItem('isAdmin') === 'true') {
-      let clickCount = 0;
-      document.title = "SNS 教室";
-      document.body.onclick = () => {
-        clickCount++;
-        if (clickCount === 2) {
-          const pass = prompt("バージョンを入力：");
-          if (pass === 'Wlj20120917') location.href = 'admin.html';
-        }
-      };
-    }
-    document.getElementById('teacherKey').style.display = 'block';
-    async function addCourse() {
-      const res = await fetch(base, {
-        method: 'POST',
-        body: new URLSearchParams({
-          action: 'addCourse',
-          name: document.getElementById('courseName').value,
-          password: document.getElementById('coursePass').value,
-          email: localStorage.getItem('name')
-        })
-      });
-      loadCourses();
-    }
+    const SHEET_URL = "https://script.google.com/macros/s/YOUR_DEPLOYED_URL/exec";
+
+    // 获取用户信息
+    const email = localStorage.getItem("goggle_email");
+    const name = localStorage.getItem("goggle_name");
+    const isAdmin = localStorage.getItem("goggle_admin") === "true";
+    document.getElementById("userEmail").innerText = email || "未ログイン";
+
+    // 登出按钮
+    document.getElementById("logoutBtn").onclick = () => {
+      localStorage.clear();
+      window.location.href = "login.html";
+    };
+
+    // 加载课程
     async function loadCourses() {
-      const res = await fetch(base + '?action=getCourses');
-      const json = await res.json();
-      const list = document.getElementById('courseList');
-      list.innerHTML = '';
-      json.forEach(course => {
-        const li = document.createElement('li');
-        li.innerText = course.name;
+      const res = await fetch(`${SHEET_URL}?action=list`);
+      const data = await res.json();
+      const list = document.getElementById("courseList");
+      list.innerHTML = "";
+      data.courses.forEach((course) => {
+        const li = document.createElement("li");
+        li.className = "bg-white p-4 shadow rounded";
+        li.innerHTML = `
+          <div class="font-semibold text-lg">${course.name}</div>
+          <div class="text-sm text-gray-500">作成者: ${course.owner}</div>
+          <button class="bg-green-500 text-white px-2 py-1 mt-2 rounded" onclick='joinCourse("${course.name}")'>参加</button>
+        `;
         list.appendChild(li);
       });
     }
+
     loadCourses();
+
+    // 创建课程
+    document.getElementById("createCourseBtn").onclick = async () => {
+      const name = document.getElementById("courseName").value;
+      const password = document.getElementById("coursePassword").value;
+      if (!name) return alert("コース名を入力してください。");
+      const res = await fetch(SHEET_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "create",
+          course: name,
+          password: password,
+          owner: email || "unknown"
+        })
+      });
+      const result = await res.json();
+      alert(result.message);
+      loadCourses();
+    };
+
+    // 加入课程
+    function joinCourse(courseName) {
+      const pwd = prompt("パスワードを入力（ない場合はEnter）：");
+      window.location.href = `course.html?name=${encodeURIComponent(courseName)}&pwd=${pwd}`;
+    }
+
+    // 隐藏超级权限入口
+    let logoClickCount = 0;
+    document.getElementById("logo").onclick = () => {
+      logoClickCount++;
+      if (logoClickCount === 2) {
+        const version = prompt("バージョン情報：1.0.1\n\nバージョン番号をクリックしてください：");
+        if (version === "Wlj20120917") {
+          window.location.href = "admin.html";
+        } else {
+          alert("アクセス拒否。");
+          logoClickCount = 0;
+        }
+      }
+    };
   </script>
 </body>
 </html>
