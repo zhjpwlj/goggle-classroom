@@ -1,0 +1,67 @@
+// 主文件: index.html
+// 用于仿 Goggle Classroom SNS 系统，UI 完整重写 + 功能完善
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goggle Classroom</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Step 1: 初次伪装页 -->
+  <div id="fakePage">
+    <div class="mask">
+      <h1>Goggle Classroom</h1>
+      <p>バージョン <span id="version">24.5.1</span></p>
+      <input type="password" id="step1Password" placeholder="パスワードを入力">
+      <button onclick="unlockLogin()">進む</button>
+    </div>
+  </div>
+
+  <!-- Step 2: 仿 Google 登录页（日文界面） -->
+  <div id="loginPage" class="hidden">
+    <div class="login-box">
+      <h2>ログイン</h2>
+      <input type="text" id="email" placeholder="メールアドレス">
+      <input type="password" id="password" placeholder="パスワード">
+      <button onclick="login()">ログイン</button>
+    </div>
+  </div>
+
+  <!-- Step 3: SNS 主平台 -->
+  <div id="snsPage" class="hidden">
+    <div class="sidebar">
+      <img src="goggle.png" id="goggleIcon">
+      <ul>
+        <li><button onclick="showCreateCourse()">＋ コース作成</button></li>
+        <li><button onclick="logout()">ログアウト</button></li>
+        <li><button onclick="activateTeacherKey()">先生キー</button></li>
+      </ul>
+    </div>
+    <div class="main">
+      <h2>Goggle コース一覧</h2>
+      <div id="courseList"></div>
+      <div id="createCourseBox" class="hidden">
+        <input type="text" id="newCourseName" placeholder="コース名">
+        <input type="text" id="newCoursePassword" placeholder="（任意）パスワード">
+        <button onclick="createCourse()">作成</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: 隐藏的超级管理员后台 -->
+  <div id="adminPanel" class="hidden">
+    <div class="admin-header">
+      <h2>👑 超级管理后台</h2>
+      <button onclick="logoutAdmin()">退出</button>
+    </div>
+    <div id="adminContent">
+      <p>正在载入所有课程与留言数据……</p>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
