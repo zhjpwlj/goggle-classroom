@@ -1,116 +1,31 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8" />
-  <title>ログイン - Goggle Classroom</title>
-  <style>
-    body {
-      font-family: 'メイリオ', Meiryo, 'ヒラギノ角ゴ Pro W3', 'Hiragino Kaku Gothic Pro', Arial, sans-serif;
-      background: #eef2f3;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-    }
-    form {
-      background: #ffffff;
-      padding: 30px 40px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      width: 320px;
-      box-sizing: border-box;
-    }
-    h2 {
-      margin-top: 0;
-      text-align: center;
-      color: #333333;
-    }
-    label {
-      display: block;
-      margin-top: 15px;
-      font-weight: bold;
-      color: #555555;
-    }
-    input[type="text"],
-    input[type="password"] {
-      width: 100%;
-      padding: 8px 10px;
-      margin-top: 5px;
-      border: 1px solid #cccccc;
-      border-radius: 5px;
-      box-sizing: border-box;
-      font-size: 14px;
-    }
-    button {
-      margin-top: 25px;
-      width: 100%;
-      padding: 10px 0;
-      background-color: #1976d2;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-    button:hover {
-      background-color: #125ea9;
-    }
-    .error-message {
-      color: red;
-      margin-top: 10px;
-      font-size: 13px;
-      display: none;
-      text-align: center;
-    }
-  </style>
-</head>
+<head><title>Goggle ログイン</title></head>
 <body>
-  <form id="loginForm">
-    <h2>ログイン</h2>
-
-    <label for="username">ユーザー名</label>
-    <input type="text" id="username" name="username" autocomplete="username" required />
-
-    <label for="password">パスワード</label>
-    <input type="password" id="password" name="password" autocomplete="current-password" required />
-
-    <button type="submit">ログイン</button>
-    <div class="error-message" id="errorMessage"></div>
-  </form>
-
+  <h2>Goggle アカウントへログイン</h2>
+  <input id="email" placeholder="メールアドレス"><br>
+  <input id="pass" type="password" placeholder="パスワード"><br>
+  <button onclick="login()">ログイン</button>
   <script>
-    const form = document.getElementById('loginForm');
-    const errorMessage = document.getElementById('errorMessage');
-
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-
-      const username = form.username.value.trim();
-      const password = form.password.value.trim();
-
-      if (!username || !password) {
-        errorMessage.textContent = 'ユーザー名とパスワードを入力してください。';
-        errorMessage.style.display = 'block';
-        return;
-      }
-
-      errorMessage.style.display = 'none';
-
-      // 本来ここでAPIに送信して認証するが、ここはモックでシンプルに処理
-      // admin/123456で管理者ログイン成功、それ以外は一般ユーザーログイン成功と仮定
-
-      if (username === 'admin' && password === '123456') {
-        alert('管理者としてログインしました！');
-        // 管理者用メインページへ
-        window.location.href = 'main.html?user=admin&role=admin';
+    async function login() {
+      const url = 'hhttps://script.google.com/macros/s/AKfycbzOWtwafo0JpD8ysxJtdrwlvCrSBTuY86_3o8MMfLb-uNy5DCas8Tst3CxK1iFiVf3I/exec';
+      const res = await fetch(url, {
+        method: 'POST',
+        body: new URLSearchParams({
+          action: 'login',
+          email: document.getElementById('email').value,
+          password: document.getElementById('pass').value
+        })
+      });
+      const json = await res.json();
+      if (json.success) {
+        localStorage.setItem('isAdmin', json.isAdmin);
+        localStorage.setItem('name', json.name);
+        location.href = 'sns.html';
       } else {
-        // 一般ユーザーとしてログイン成功
-        alert(`${username} さん、ログイン成功しました！`);
-        window.location.href = `main.html?user=${encodeURIComponent(username)}&role=user`;
+        alert('ログイン失敗');
       }
-    });
+    }
   </script>
 </body>
 </html>
