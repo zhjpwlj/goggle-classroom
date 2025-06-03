@@ -1,27 +1,39 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head><title>Goggle Classroom</title></head>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Goggle Classroom</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
 <body>
-  <h1>Goggle Classroom</h1>
-  <p>バージョン: <span id="ver" style="cursor:pointer;">v23.0</span></p>
-  <div id="pw" style="display:none;">
-    <input type="password" id="code" placeholder="パスワード">
-    <button onclick="check()">開く</button>
+  <div id="fake-page">
+    <header>
+      <h1>Goggle Classroom</h1>
+      <span id="version" onclick="revealPassword()">v1.0.0</span>
+    </header>
+    <main>
+      <p>ここにあなたのクラスを見つけましょう。</p>
+    </main>
   </div>
+
+  <div id="password-entry" style="display:none">
+    <label for="entry">パスワードを入力してください：</label>
+    <input type="password" id="entry">
+    <button onclick="checkFirstPassword()">確認</button>
+  </div>
+
   <script>
-    let clicked = false;
-    document.getElementById('ver').onclick = () => {
-      if (!clicked) {
-        clicked = true;
+    function revealPassword() {
+      document.getElementById('password-entry').style.display = 'block';
+    }
+
+    function checkFirstPassword() {
+      const input = document.getElementById('entry').value;
+      if (input === '1357') {
+        window.location.href = 'login.html';
       } else {
-        document.getElementById('pw').style.display = 'block';
-      }
-    };
-    function check() {
-      if (document.getElementById('code').value === '1357') {
-        location.href = 'login.html';
-      } else {
-        alert('パスワードが違います。');
+        alert('パスワードが間違っています。');
       }
     }
   </script>
