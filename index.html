@@ -1,55 +1,28 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>Goggle Classroom</title>
-  <style>
-    body {
-      font-family: sans-serif;
-      text-align: center;
-      margin-top: 100px;
-    }
-    #version {
-      color: gray;
-      cursor: pointer;
-    }
-    #password-box {
-      display: none;
-      margin-top: 20px;
-    }
-  </style>
-</head>
+<head><title>Goggle Classroom</title></head>
 <body>
   <h1>Goggle Classroom</h1>
-  <p id="version">バージョン 12.3.7</p>
-
-  <div id="password-box">
-    <input type="password" id="input" placeholder="パスワードを入力">
-    <button onclick="checkPassword()">OK</button>
+  <p>バージョン: <span id="ver" style="cursor:pointer;">v23.0</span></p>
+  <div id="pw" style="display:none;">
+    <input type="password" id="code" placeholder="パスワード">
+    <button onclick="check()">開く</button>
   </div>
-
   <script>
-    let clickCount = 0;
-    document.getElementById("version").addEventListener("click", () => {
-      clickCount++;
-      if (clickCount >= 1) {
-        document.getElementById("password-box").style.display = "block";
-      }
-    });
-
-    function checkPassword() {
-      const input = document.getElementById("input").value;
-      if (input === "1357") {
-        document.cookie = "visited=true; path=/";
-        window.location.href = "login.html";
+    let clicked = false;
+    document.getElementById('ver').onclick = () => {
+      if (!clicked) {
+        clicked = true;
       } else {
-        alert("パスワードが間違っています");
+        document.getElementById('pw').style.display = 'block';
       }
-    }
-
-    // すでに訪問済みなら直接ログインページへ遷移
-    if (document.cookie.includes("visited=true")) {
-      window.location.href = "login.html";
+    };
+    function check() {
+      if (document.getElementById('code').value === '1357') {
+        location.href = 'login.html';
+      } else {
+        alert('パスワードが違います。');
+      }
     }
   </script>
 </body>
