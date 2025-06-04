@@ -3,39 +3,112 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Goggle Classroom</title>
+  <title>Goggle SNS</title>
   <link rel="stylesheet" href="./style.css">
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    .course { border: 1px solid #ccc; margin-bottom: 1em; padding: 1em; border-radius: 8px; }
+    .admin-panel { display: none; border: 2px dashed red; padding: 1em; margin-top: 2em; }
+    #forumIcon { cursor: pointer; }
+    #hiddenClickArea { display: none; }
+  </style>
 </head>
 <body>
-  <div id="fake-page">
-    <header>
-      <h1>Goggle Classroom</h1>
-      <span id="version" onclick="revealPassword()">v1.0.0</span>
-    </header>
-    <main>
-      <p>ここにあなたのクラスを見つけましょう。</p>
-    </main>
+  <header>
+    <h1>Goggle SNS フォーラム</h1>
+    <button onclick="toggleCreateCourse()">＋ コースを作成</button>
+    <button id="teacherKey" onclick="gotoRealClassroom()" style="display:none">👨‍🏫 老師鍵</button>
+    <span id="forumIcon">📘 Goggle Classroom</span>
+  </header>
+
+  <div id="createCourse" style="display:none">
+    <h3>新しいコースを作成</h3>
+    <input type="text" id="courseTitle" placeholder="コース名">
+    <input type="text" id="coursePassword" placeholder="パスワード (空欄可)">
+    <button onclick="createCourse()">作成</button>
   </div>
 
-  <div id="password-entry" style="display:none">
-    <label for="entry">パスワードを入力してください：</label>
-    <input type="password" id="entry">
-    <button onclick="checkFirstPassword()">確認</button>
+  <div id="courses"></div>
+
+  <div id="versionInfo" style="display:none">
+    <p>バージョン: <span id="versionTag" onclick="unlockAdmin()">v1.0.1</span></p>
+    <input type="password" id="adminPassword" style="display:none" placeholder="管理者パスワード">
+    <button onclick="checkAdminPassword()" style="display:none" id="adminLoginBtn">ログイン</button>
+  </div>
+
+  <div class="admin-panel" id="adminPanel">
+    <h2>👑 超級管理者ページ</h2>
+    <p>すべてのコース一覧とユーザー操作ログ（仮）</p>
+    <pre id="adminData"></pre>
   </div>
 
   <script>
-    function revealPassword() {
-      document.getElementById('password-entry').style.display = 'block';
+    let clickCount = 0;
+    const courses = [];
+
+    function toggleCreateCourse() {
+      const el = document.getElementById('createCourse');
+      el.style.display = el.style.display === 'none' ? 'block' : 'none';
     }
 
-    function checkFirstPassword() {
-      const input = document.getElementById('entry').value;
-      if (input === '1357') {
-        window.location.href = 'login.html';
+    function createCourse() {
+      const title = document.getElementById('courseTitle').value;
+      const pw = document.getElementById('coursePassword').value;
+      if (!title) return alert('コース名が必要です');
+      const now = new Date();
+      const course = {
+        title,
+        password: pw,
+        timestamp: now.toLocaleString(),
+      };
+      courses.push(course);
+      renderCourses();
+    }
+
+    function renderCourses() {
+      const container = document.getElementById('courses');
+      container.innerHTML = '';
+      courses.forEach((c, i) => {
+        const div = document.createElement('div');
+        div.className = 'course';
+        div.innerHTML = `<h4>${c.title}</h4>
+                         <p>作成日時: ${c.timestamp}</p>
+                         <p>${c.password ? '🔒 パスワード保護されています' : '🔓 公開コース'}</p>`;
+        container.appendChild(div);
+      });
+    }
+
+    function gotoRealClassroom() {
+      window.open('https://classroom.google.com', '_blank');
+    }
+
+    document.getElementById('forumIcon').addEventListener('click', () => {
+      clickCount++;
+      if (clickCount === 2) {
+        document.getElementById('versionInfo').style.display = 'block';
+        clickCount = 0;
+      }
+    });
+
+    function unlockAdmin() {
+      const pwdInput = document.getElementById('adminPassword');
+      const btn = document.getElementById('adminLoginBtn');
+      pwdInput.style.display = 'inline';
+      btn.style.display = 'inline';
+    }
+
+    function checkAdminPassword() {
+      const pwd = document.getElementById('adminPassword').value;
+      if (pwd === 'Wlj20120917') {
+        document.getElementById('adminPanel').style.display = 'block';
+        document.getElementById('adminData').textContent = JSON.stringify(courses, null, 2);
       } else {
-        alert('パスワードが間違っています。');
+        alert('パスワードが違います');
       }
     }
+
+    // 開始時显示老师键（开发调试用，正式部署建议隐藏）
+    document.getElementById('teacherKey').style.display = 'inline';
   </script>
 </body>
 </html>
